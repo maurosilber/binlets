@@ -49,16 +49,23 @@ def binlet(inputs: tuple,
 
 def binlet_level(inputs, threshold, valfun, covfun, bin_args, args, level, axes):
     """Computes one level of the binlet transform."""
+    a_key = 'a' * len(axes)  # Approximation coefficient key
 
     # Calculate threshold masks with previous level data
     threshold_masks = chi2_threshold_level(inputs, threshold, valfun, covfun, bin_args, args, level, axes)
+    threshold_masks.pop(a_key)  # Don't threshold approximation coefficients.
+
     # Calculate current level
-    inputs_approx, inputs_details = tuple(zip(*(modwt_level_nd(x, level, axes) for x in inputs)))
+    inputs_coeffs = tuple(modwt_level_nd(x, level, axes) for x in inputs)
     bin_args = tuple(modwt_level_nd(x, level, axes, approx_only=True) for x in inputs)
+
     # Threshold current level
     for key, mask in threshold_masks.items():
-        for details in inputs_details:
-            details[key][mask] = 0
+        for coeffs in inputs_coeffs:
+            coeffs[key][mask] = 0
+
+    inputs_approx = tuple(coeffs.pop(a_key) for coeffs in inputs_coeffs)
+    inputs_details = inputs_coeffs
 
     return (inputs_approx, inputs_details), bin_args
 
