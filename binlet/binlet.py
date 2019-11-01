@@ -57,7 +57,7 @@ def binlet_level(inputs, threshold, valfun, covfun, bin_args, args, level, axes)
 
     # Calculate current level
     inputs_coeffs = tuple(modwt_level_nd(x, level, axes) for x in inputs)
-    bin_args = tuple(modwt_level_nd(x, level, axes, approx_only=True) for x in inputs)
+    bin_args = tuple(modwt_level_nd(x, level, axes, approx_only=True) for x in bin_args)
 
     # Threshold current level
     for key, mask in threshold_masks.items():
