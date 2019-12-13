@@ -7,7 +7,7 @@ from .modwt import modwt_level_nd, imodwt_level_nd
 def binlet(inputs: tuple,
            valfun, covfun, bin_args, args,
            p_value: float, levels: int, axes):
-    """Generic binlet denoising.
+    """Generic binlets denoising.
 
     Parameters
     ----------
@@ -28,6 +28,8 @@ def binlet(inputs: tuple,
     -------
         Tuple of denoised inputs.
     """
+    # TODO: convert axes to positive numbers
+
     ndim = len(axes)
     threshold = stats.chi2.isf(p_value, df=ndim)
 
@@ -35,8 +37,10 @@ def binlet(inputs: tuple,
     coeffs_list = []
 
     approxs = inputs
+    tree_mask = True
     for level in range(levels):
-        (approxs, details), bin_args = binlet_level(approxs, threshold, valfun, covfun, bin_args, args, level, axes)
+        (approxs, details, tree_mask), bin_args = binlet_level(approxs, threshold, tree_mask, valfun, covfun, bin_args,
+                                                               args, level, axes)
         coeffs_list.append(details)
 
     for level, coeffs in reversed(list(enumerate(coeffs_list))):
@@ -47,8 +51,8 @@ def binlet(inputs: tuple,
     return approxs
 
 
-def binlet_level(inputs, threshold, valfun, covfun, bin_args, args, level, axes):
-    """Computes one level of the binlet transform."""
+def binlet_level(inputs, threshold, tree_mask, valfun, covfun, bin_args, args, level, axes):
+    """Computes one level of the binlets transform."""
     a_key = 'a' * len(axes)  # Approximation coefficient key
 
     # Calculate threshold masks with previous level data
@@ -61,13 +65,15 @@ def binlet_level(inputs, threshold, valfun, covfun, bin_args, args, level, axes)
 
     # Threshold current level
     for key, mask in threshold_masks.items():
+        tree_mask &= mask
+    for key in threshold_masks.keys():
         for coeffs in inputs_coeffs:
-            coeffs[key][mask] = 0
+            coeffs[key][tree_mask] = 0
 
     inputs_approx = tuple(coeffs.pop(a_key) for coeffs in inputs_coeffs)
     inputs_details = inputs_coeffs
 
-    return (inputs_approx, inputs_details), bin_args
+    return (inputs_approx, inputs_details, tree_mask), bin_args
 
 
 def chi2_threshold_level(inputs, threshold, valfun, covfun, bin_args, args, level, axes):
