@@ -1,8 +1,10 @@
+# Hidden
+.*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 
 # Distribution / packaging
-*.egg
-*.egg-info/
+*.egg*
 build/
 dist/

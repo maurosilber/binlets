@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 from scipy import stats
 
-from .modwt import modwt_level_nd, imodwt_level_nd, modwt_level_mask_nd
+from .modwt import imodwt_level_nd, modwt_level_mask_nd, modwt_level_nd
 
 
 def binlet(valfun, covfun, is_scalar):
@@ -18,8 +18,16 @@ def binlet(valfun, covfun, is_scalar):
         Set to False if valfun returns a vector and covfun a matrix.
     """
 
-    def binlets(inputs, levels, p_value=0.05, axes=None, mask=None,
-                bin_args=None, args=None, kwargs=None):
+    def binlets(
+        inputs,
+        levels,
+        p_value=0.05,
+        axes=None,
+        mask=None,
+        bin_args=None,
+        args=None,
+        kwargs=None,
+    ):
         """Binlets denoising.
 
         Parameters
@@ -53,7 +61,7 @@ def binlet(valfun, covfun, is_scalar):
             Extra arguments used by valfun and covfun
         """
         if levels < 0:
-            raise ValueError('Levels must be >= 0.')
+            raise ValueError("Levels must be >= 0.")
         elif levels == 0:
             return inputs
 
@@ -79,26 +87,61 @@ def binlet(valfun, covfun, is_scalar):
 
         # Decomposition
         for level in range(levels):
-            approxs, details, mask, bin_args = _binlet_level(approxs, level, threshold, axes, mask,
-                                                             valfun, covfun, is_scalar, bin_args, args, kwargs)
+            approxs, details, mask, bin_args = _binlet_level(
+                approxs,
+                level,
+                threshold,
+                axes,
+                mask,
+                valfun,
+                covfun,
+                is_scalar,
+                bin_args,
+                args,
+                kwargs,
+            )
             details_list.append(details)
 
         # Reconstruction
         for level, details in reversed(list(enumerate(details_list))):
-            approxs = tuple(imodwt_level_nd(a, d, level, axes) for a, d in zip(approxs, details))
+            approxs = tuple(
+                imodwt_level_nd(a, d, level, axes) for a, d in zip(approxs, details)
+            )
 
         return approxs
 
     return binlets
 
 
-def _binlet_level(inputs, level, threshold, axes, mask, valfun, covfun, is_scalar, bin_args, args, kwargs):
+def _binlet_level(
+    inputs,
+    level,
+    threshold,
+    axes,
+    mask,
+    valfun,
+    covfun,
+    is_scalar,
+    bin_args,
+    args,
+    kwargs,
+):
     """Compute one level of the binlets transform."""
 
     # Calculate threshold masks with previous level data
     mask = modwt_level_mask_nd(mask, level, axes)
-    threshold_masks = _chi2_threshold_level(inputs, level, threshold, axes, valfun, covfun, is_scalar, bin_args, args,
-                                            kwargs)
+    threshold_masks = _chi2_threshold_level(
+        inputs,
+        level,
+        threshold,
+        axes,
+        valfun,
+        covfun,
+        is_scalar,
+        bin_args,
+        args,
+        kwargs,
+    )
     for m in threshold_masks.values():
         mask &= m
 
@@ -114,7 +157,9 @@ def _binlet_level(inputs, level, threshold, axes, mask, valfun, covfun, is_scala
     return approxs, details, mask, bin_args
 
 
-def _chi2_threshold_level(inputs, level, threshold, axes, valfun, covfun, is_scalar, bin_args, args, kwargs):
+def _chi2_threshold_level(
+    inputs, level, threshold, axes, valfun, covfun, is_scalar, bin_args, args, kwargs
+):
     """Calculates a mask for thresholding each detail coefficient."""
 
     val = valfun(*inputs, *bin_args, *args, **kwargs)
@@ -123,10 +168,16 @@ def _chi2_threshold_level(inputs, level, threshold, axes, valfun, covfun, is_sca
     _, diff = modwt_level_nd(val, level, axes)
     cov = modwt_level_nd(cov, level, axes, approx_only=True)
     if is_scalar:
-        return {key: _scalar_quadratic_form(cov, value) < threshold for key, value in diff.items()}
+        return {
+            key: _scalar_quadratic_form(cov, value) < threshold
+            for key, value in diff.items()
+        }
     else:
         inv_cov = np.linalg.inv(cov)
-        return {key: _vector_quadratic_form(inv_cov, value) < threshold for key, value in diff.items()}
+        return {
+            key: _vector_quadratic_form(inv_cov, value) < threshold
+            for key, value in diff.items()
+        }
 
 
 def _scalar_quadratic_form(variance, mean):
@@ -138,7 +189,7 @@ def _scalar_quadratic_form(variance, mean):
     ----------
     variance, mean : (...) ndarray.
     """
-    return mean ** 2 / variance
+    return mean**2 / variance
 
 
 @njit
