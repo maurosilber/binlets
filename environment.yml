@@ -5,3 +5,5 @@ dependencies:
   - numba
   - numpy
   - scipy
+  - pytest
+  - hypothesis
