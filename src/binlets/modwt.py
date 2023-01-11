@@ -1,9 +1,7 @@
-from functools import reduce
-
 import numpy as np
 
 
-def modwt_1d(data, level, axis=-1, approx_only=False):
+def modwt_1d(data, level, axis=-1):
     """1D Haar MODWT transform.
 
     Parameters
@@ -15,24 +13,16 @@ def modwt_1d(data, level, axis=-1, approx_only=False):
     axis : int, optional
         Axis along which to apply the transform.
         By default, last dimension.
-    approx_only : bool, optional
-        If True, only computes approximation coefficients.
-        By default, False.
 
     Returns
     -------
     (approx, detail) : tuple of ndarrays
         Approximation and detail coefficients.
-
-    If approx_only is True, returns only approximation coefficients.
     """
     shifted = np.roll(data, -(2**level), axis=axis)
     approx = shifted + data
-    if approx_only:
-        return approx
-    else:
-        detail = shifted - data
-        return approx, detail
+    detail = shifted - data
+    return approx, detail
 
 
 def imodwt_1d(approx, detail, level, axis=-1):
@@ -58,7 +48,7 @@ def imodwt_1d(approx, detail, level, axis=-1):
     return (data + shifted) / 2
 
 
-def modwt_nd(data, level, axes, approx_only=False):
+def modwt_nd(data, level, axes):
     """nD Haar MODWT transform.
 
     Parameters
@@ -69,23 +59,12 @@ def modwt_nd(data, level, axes, approx_only=False):
         Decomposition level. Must be >= 0.
     axes : tuple of int
         Axes along which to apply the transform.
-    approx_only : bool, optional
-        If True, returns only approximation coefficients.
 
     Returns
     -------
     coeffs : list[ndarray]
         Approximation and detail coefficients.
-
-    If approx_only is True, returns only approximation coefficients.
     """
-    if approx_only:
-        return reduce(
-            lambda approx, axis: modwt_1d(approx, level, axis, approx_only=True),
-            axes,
-            data,
-        )
-
     coeffs = [data]
     for axis in axes:
         new_coeffs = []
