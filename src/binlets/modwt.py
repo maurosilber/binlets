@@ -59,11 +59,6 @@ def imodwt_level(approx, detail, level, axis=-1):
     return (data + shifted) / 2
 
 
-def modwt_level_mask(mask, level, axis=-1):
-    mask &= np.roll(mask, -(2**level), axis=axis)
-    return mask
-
-
 def modwt_level_nd(data, level, axes, approx_only=False):
     """nD Haar MODWT transform.
 
@@ -106,12 +101,6 @@ def modwt_level_nd(data, level, axes, approx_only=False):
     return approx, coeffs
 
 
-def modwt_level_mask_nd(mask, level, axes):
-    for axis in axes:
-        mask = modwt_level_mask(mask, level, axis)
-    return mask
-
-
 def imodwt_level_nd(approx, details, level, axes):
     """nD Haar MODWT transform."""
     details["a" * len(axes)] = approx
@@ -125,3 +114,14 @@ def imodwt_level_nd(approx, details, level, axes):
             new_coeffs[key] = imodwt_level(A, D, level, axis)
         coeffs = new_coeffs
     return coeffs[""]
+
+
+def modwt_level_mask(mask, level, axis=-1):
+    mask &= np.roll(mask, -(2**level), axis=axis)
+    return mask
+
+
+def modwt_level_mask_nd(mask, level, axes):
+    for axis in axes:
+        mask = modwt_level_mask(mask, level, axis)
+    return mask
