@@ -4,7 +4,7 @@ from itertools import product
 import numpy as np
 
 
-def modwt_level(data, level, axis=-1, approx_only=False):
+def modwt_1d(data, level, axis=-1, approx_only=False):
     """1D Haar MODWT transform.
 
     Parameters
@@ -36,7 +36,7 @@ def modwt_level(data, level, axis=-1, approx_only=False):
         return approx, detail
 
 
-def imodwt_level(approx, detail, level, axis=-1):
+def imodwt_1d(approx, detail, level, axis=-1):
     """Inverse 1D Haar MODWT transform.
 
     Parameters
@@ -59,7 +59,7 @@ def imodwt_level(approx, detail, level, axis=-1):
     return (data + shifted) / 2
 
 
-def modwt_level_nd(data, level, axes, approx_only=False):
+def modwt_nd(data, level, axes, approx_only=False):
     """nD Haar MODWT transform.
 
     Parameters
@@ -84,7 +84,7 @@ def modwt_level_nd(data, level, axes, approx_only=False):
     """
     if approx_only:
         return reduce(
-            lambda approx, axis: modwt_level(approx, level, axis, approx_only=True),
+            lambda approx, axis: modwt_1d(approx, level, axis, approx_only=True),
             axes,
             data,
         )
@@ -93,7 +93,7 @@ def modwt_level_nd(data, level, axes, approx_only=False):
     for axis in axes:
         new_coeffs = []
         for subband, x in coeffs:
-            A, D = modwt_level(x, level, axis)
+            A, D = modwt_1d(x, level, axis)
             new_coeffs.extend([(subband + "a", A), (subband + "d", D)])
         coeffs = new_coeffs
     coeffs = dict(coeffs)
@@ -101,7 +101,7 @@ def modwt_level_nd(data, level, axes, approx_only=False):
     return approx, coeffs
 
 
-def imodwt_level_nd(approx, details, level, axes):
+def imodwt_nd(approx, details, level, axes):
     """nD Haar MODWT transform."""
     details["a" * len(axes)] = approx
     coeffs = details
@@ -111,17 +111,17 @@ def imodwt_level_nd(approx, details, level, axes):
         for key in new_keys:
             A = coeffs.get(key + "a")
             D = coeffs.get(key + "d")
-            new_coeffs[key] = imodwt_level(A, D, level, axis)
+            new_coeffs[key] = imodwt_1d(A, D, level, axis)
         coeffs = new_coeffs
     return coeffs[""]
 
 
-def modwt_level_mask(mask, level, axis=-1):
+def modwt_mask_1d(mask, level, axis=-1):
     mask &= np.roll(mask, -(2**level), axis=axis)
     return mask
 
 
-def modwt_level_mask_nd(mask, level, axes):
+def modwt_mask_nd(mask, level, axes):
     for axis in axes:
-        mask = modwt_level_mask(mask, level, axis)
+        mask = modwt_mask_1d(mask, level, axis)
     return mask

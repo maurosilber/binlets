@@ -23,8 +23,8 @@ def test_round_trip_1d(data):
     axes = range(len(data.shape))
 
     for level in range(max_level):
-        approx, details = modwt.modwt_level(data, level, axes)
-        data_rec = modwt.imodwt_level(approx, details, level, axes)
+        approx, details = modwt.modwt_1d(data, level, axes)
+        data_rec = modwt.imodwt_1d(approx, details, level, axes)
         assert np.allclose(data_rec, data)
 
 
@@ -45,6 +45,6 @@ def test_round_trip(data):
     axes = range(len(data.shape))
 
     for level in range(max_level):
-        approx, details = modwt.modwt_level_nd(data, level, axes)
-        data_rec = modwt.imodwt_level_nd(approx, details, level, axes)
+        approx, details = modwt.modwt_nd(data, level, axes)
+        data_rec = modwt.imodwt_nd(approx, details, level, axes)
         assert np.allclose(data_rec, data)
