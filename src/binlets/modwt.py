@@ -1,7 +1,13 @@
+from __future__ import annotations
+
 import numpy as np
 
 
-def modwt_1d(data, level, axis=-1):
+def modwt_1d(
+    data: np.ndarray,
+    level: int,
+    axis: int = -1,
+) -> tuple[np.ndarray, np.ndarray]:
     """1D Haar MODWT transform.
 
     Parameters
@@ -16,7 +22,7 @@ def modwt_1d(data, level, axis=-1):
 
     Returns
     -------
-    (approx, detail) : tuple of ndarrays
+    (approx, detail) : tuple[ndarrays]
         Approximation and detail coefficients.
     """
     shifted = np.roll(data, -(2**level), axis=axis)
@@ -25,12 +31,17 @@ def modwt_1d(data, level, axis=-1):
     return approx, detail
 
 
-def imodwt_1d(approx, detail, level, axis=-1):
+def imodwt_1d(
+    approx: np.ndarray,
+    detail: np.ndarray,
+    level: int,
+    axis: int = -1,
+) -> np.ndarray:
     """Inverse 1D Haar MODWT transform.
 
     Parameters
     ----------
-    approx, detail : numpy.array
+    approx, detail : ndarray
         Approximation and detail coefficients.
     level : int
         Decomposition level. Must be >= 0.
@@ -48,7 +59,11 @@ def imodwt_1d(approx, detail, level, axis=-1):
     return (data + shifted) / 2
 
 
-def modwt_nd(data, level, axes):
+def modwt_nd(
+    data: np.ndarray,
+    level: int,
+    axes: tuple[int],
+) -> list[np.ndarray]:
     """nD Haar MODWT transform.
 
     Parameters
@@ -57,7 +72,7 @@ def modwt_nd(data, level, axes):
         Input signal.
     level : int
         Decomposition level. Must be >= 0.
-    axes : tuple of int
+    axes : tuple[int]
         Axes along which to apply the transform.
 
     Returns
@@ -74,7 +89,11 @@ def modwt_nd(data, level, axes):
     return coeffs
 
 
-def imodwt_nd(coeffs, level, axes):
+def imodwt_nd(
+    coeffs: list[np.ndarray],
+    level: int,
+    axes: tuple[int],
+) -> np.ndarray:
     """nD Haar MODWT transform."""
     for axis in reversed(axes):
         pairwise = zip(coeffs[0::2], coeffs[1::2])
