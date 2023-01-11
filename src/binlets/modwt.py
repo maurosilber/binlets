@@ -1,5 +1,4 @@
 from functools import reduce
-from itertools import product
 
 import numpy as np
 
@@ -75,10 +74,8 @@ def modwt_nd(data, level, axes, approx_only=False):
 
     Returns
     -------
-    approx : ndarray
-        Approximation coefficients.
-    details : dict of ndarrays
-        Detail coefficients.
+    coeffs : list[ndarray]
+        Approximation and detail coefficients.
 
     If approx_only is True, returns only approximation coefficients.
     """
@@ -89,31 +86,21 @@ def modwt_nd(data, level, axes, approx_only=False):
             data,
         )
 
-    coeffs = [("", data)]
+    coeffs = [data]
     for axis in axes:
         new_coeffs = []
-        for subband, x in coeffs:
-            A, D = modwt_1d(x, level, axis)
-            new_coeffs.extend([(subband + "a", A), (subband + "d", D)])
+        for x in coeffs:
+            new_coeffs.extend(modwt_1d(x, level, axis))
         coeffs = new_coeffs
-    coeffs = dict(coeffs)
-    approx = coeffs.pop("a" * len(axes))
-    return approx, coeffs
+    return coeffs
 
 
-def imodwt_nd(approx, details, level, axes):
+def imodwt_nd(coeffs, level, axes):
     """nD Haar MODWT transform."""
-    details["a" * len(axes)] = approx
-    coeffs = details
-    for key_length, axis in reversed(list(enumerate(axes))):
-        new_coeffs = {}
-        new_keys = ["".join(coef) for coef in product("ad", repeat=key_length)]
-        for key in new_keys:
-            A = coeffs.get(key + "a")
-            D = coeffs.get(key + "d")
-            new_coeffs[key] = imodwt_1d(A, D, level, axis)
-        coeffs = new_coeffs
-    return coeffs[""]
+    for axis in reversed(axes):
+        pairwise = zip(coeffs[0::2], coeffs[1::2])
+        coeffs = [imodwt_1d(A, D, level, axis) for A, D in pairwise]
+    return coeffs[0]
 
 
 def modwt_mask_1d(mask, level, axis=-1):

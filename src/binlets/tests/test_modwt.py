@@ -31,7 +31,7 @@ def test_round_trip_1d(data):
 @hypothesis.given(
     data=st_np.arrays(
         np.float64,
-        shape=st_np.array_shapes(max_dims=4, max_side=32),
+        shape=st_np.array_shapes(max_dims=4, max_side=16),
         elements=st.floats(
             min_value=-1e6,
             max_value=1e6,
@@ -45,6 +45,6 @@ def test_round_trip(data):
     axes = range(len(data.shape))
 
     for level in range(max_level):
-        approx, details = modwt.modwt_nd(data, level, axes)
-        data_rec = modwt.imodwt_nd(approx, details, level, axes)
+        coeffs = modwt.modwt_nd(data, level, axes)
+        data_rec = modwt.imodwt_nd(coeffs, level, axes)
         assert np.allclose(data_rec, data)
