@@ -1,14 +1,57 @@
 from __future__ import annotations
 
+from typing import Protocol
+
 import numpy as np
+
+
+class Wavelet(Protocol):
+    """Wavelet coefficients.
+
+    Coefficient names based on PyWavelets.
+
+    dec_lo: Decomposition low-pass filter values.
+    dec_hi: Decomposition high-pass filter values.
+    rec_lo: Reconstruction low-pass filter values.
+    rec_hi: Reconstruction high-pass filter values.
+    """
+
+    dec_lo: tuple[float, float]
+    dec_hi: tuple[float, float]
+    rec_lo: tuple[float, float]
+    rec_hi: tuple[float, float]
+
+
+class Haar:
+    """Unnormalized Haar wavelet.
+
+    Decomposition can be thought of as a binning operation.
+    """
+
+    dec_lo = [1.0, 1.0]
+    dec_hi = [-1.0, 1.0]
+    rec_lo = [0.5, 0.5]
+    rec_hi = [0.5, -0.5]
+
+
+class NormalizedHaar:
+    """Normalized Haar wavelet."""
+
+    s = 1 / 2**0.5
+    dec_lo = [s, s]
+    dec_hi = [-s, s]
+    rec_lo = [s, s]
+    rec_hi = [s, -s]
 
 
 def modwt_1d(
     data: np.ndarray,
     level: int,
     axis: int = -1,
+    *,
+    wavelet: Wavelet,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """1D Haar MODWT transform.
+    """1D MODWT transform.
 
     Parameters
     ----------
@@ -22,13 +65,35 @@ def modwt_1d(
 
     Returns
     -------
-    (approx, detail) : tuple[ndarrays]
+    (approx, detail) : tuple[ndarray, ndarray]
         Approximation and detail coefficients.
     """
     shifted = np.roll(data, -(2**level), axis=axis)
-    approx = shifted + data
-    detail = shifted - data
+    a0, a1 = wavelet.dec_lo
+    approx = a0 * data + a1 * shifted
+    d0, d1 = wavelet.dec_hi
+    detail = d0 * data + d1 * shifted
     return approx, detail
+
+
+def undo_1d_modwt(approx, detail, *, wavelet: Wavelet) -> tuple[np.ndarray, np.ndarray]:
+    """Inverse 1D MODWT transform.
+
+    Parameters
+    ----------
+    approx, detail : ndarray
+        Approximation and detail coefficients.
+
+    Returns
+    -------
+    tuple[ndarray, ndarray]
+        Reconstructed left and right coefficients.
+    """
+    a0, a1 = wavelet.rec_lo
+    d0, d1 = wavelet.rec_hi
+    x = d0 * approx + d1 * detail
+    y = a0 * approx + a1 * detail
+    return x, y
 
 
 def imodwt_1d(
@@ -36,8 +101,10 @@ def imodwt_1d(
     detail: np.ndarray,
     level: int,
     axis: int = -1,
+    *,
+    wavelet: Wavelet,
 ) -> np.ndarray:
-    """Inverse 1D Haar MODWT transform.
+    """Inverse 1D MODWT transform.
 
     Parameters
     ----------
@@ -54,17 +121,19 @@ def imodwt_1d(
     ndarray
         Reconstructed signal.
     """
-    data = (approx - detail) / 2
-    shifted = np.roll((approx + detail) / 2, 2**level, axis=axis)
-    return (data + shifted) / 2
+    data, shifted = undo_1d_modwt(approx, detail, wavelet=wavelet)
+    unshifted = np.roll(shifted, 2**level, axis=axis)
+    return (data + unshifted) / 2
 
 
 def modwt_nd(
     data: np.ndarray,
     level: int,
-    axes: tuple[int],
+    axes: tuple[int, ...],
+    *,
+    wavelet: Wavelet,
 ) -> list[np.ndarray]:
-    """nD Haar MODWT transform.
+    """nD MODWT transform.
 
     Parameters
     ----------
@@ -72,7 +141,7 @@ def modwt_nd(
         Input signal.
     level : int
         Decomposition level. Must be >= 0.
-    axes : tuple[int]
+    axes : tuple[int, ...]
         Axes along which to apply the transform.
 
     Returns
@@ -84,7 +153,7 @@ def modwt_nd(
     for axis in axes:
         new_coeffs = []
         for x in coeffs:
-            new_coeffs.extend(modwt_1d(x, level, axis))
+            new_coeffs.extend(modwt_1d(x, level, axis, wavelet=wavelet))
         coeffs = new_coeffs
     return coeffs
 
@@ -92,21 +161,56 @@ def modwt_nd(
 def imodwt_nd(
     coeffs: list[np.ndarray],
     level: int,
-    axes: tuple[int],
+    axes: tuple[int, ...],
+    *,
+    wavelet: Wavelet,
 ) -> np.ndarray:
-    """nD Haar MODWT transform."""
+    """nD MODWT transform.
+
+    Parameters
+    ----------
+    coeffs : list[ndarray]
+        Input coefficients in the order given by modwt_nd.
+    level : int
+        Decomposition level. Must be >= 0.
+    axes : tuple[int, ...]
+        Axes along which to apply the transform.
+
+    Returns
+    -------
+    coeffs : list[ndarray]
+        Approximation and detail coefficients.
+    """
     for axis in reversed(axes):
         pairwise = zip(coeffs[0::2], coeffs[1::2])
-        coeffs = [imodwt_1d(A, D, level, axis) for A, D in pairwise]
+        coeffs = [imodwt_1d(A, D, level, axis, wavelet=wavelet) for A, D in pairwise]
     return coeffs[0]
 
 
-def modwt_mask_1d(mask, level, axis=-1):
-    mask &= np.roll(mask, -(2**level), axis=axis)
-    return mask
+def _modwt_mask_inplace(
+    mask: np.ndarray[bool],
+    level: int,
+    axes: tuple[int, ...],
+    *,
+    wavelet: Wavelet,
+):
+    """Updates mask for the given level of the transform.
 
+    Parameters
+    ----------
+    mask : ndarray[bool]
+        Mask for coefficients.
+    level : int
+        Decomposition level. Must be >= 0.
+    axes : tuple[int, ...]
+        Axes along which to apply the transform.
 
-def modwt_mask_nd(mask, level, axes):
+    Returns
+    -------
+    coeffs : list[ndarray]
+        Approximation and detail coefficients.
+    """
+    shift = -(2**level)
     for axis in axes:
-        mask = modwt_mask_1d(mask, level, axis)
+        mask &= np.roll(mask, shift, axis=axis)
     return mask

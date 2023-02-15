@@ -2,8 +2,7 @@ name: binlets
 channels:
   - conda-forge
 dependencies:
-  - numba
   - numpy
-  - scipy
   - pytest
   - hypothesis
+  - pre-commit
