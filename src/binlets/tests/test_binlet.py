@@ -6,7 +6,7 @@ import hypothesis.strategies as st
 import numpy as np
 import scipy.ndimage
 
-from ..binlets import binlets, max_level
+from .._binlets import binlets, max_level
 
 
 @hypothesis.given(

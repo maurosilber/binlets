@@ -5,7 +5,7 @@ from typing import Callable
 
 import numpy as np
 
-from .modwt import (
+from ._modwt import (
     Haar,
     Wavelet,
     _modwt_mask_inplace,

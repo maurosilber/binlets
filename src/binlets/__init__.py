@@ -1,3 +1,3 @@
-from binlets import binlets
+from ._binlets import binlets
 
 __all__ = ["binlets"]

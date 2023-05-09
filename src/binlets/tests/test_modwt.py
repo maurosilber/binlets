@@ -4,9 +4,9 @@ import hypothesis.strategies as st
 import numpy as np
 import pytest
 
-from .. import modwt
-from ..binlets import Haar, undo_1d_modwt
-from ..modwt import NormalizedHaar
+from .. import _modwt
+from .._binlets import Haar, undo_1d_modwt
+from .._modwt import NormalizedHaar
 
 
 @pytest.mark.parametrize("wavelet", [Haar, NormalizedHaar])
@@ -27,8 +27,8 @@ def test_round_trip_1d(data, wavelet):
     axes = range(len(data.shape))
 
     for level in range(max_level):
-        approx, details = modwt.modwt_1d(data, level, axes, wavelet=wavelet)
-        data_rec = modwt.imodwt_1d(approx, details, level, axes, wavelet=wavelet)
+        approx, details = _modwt.modwt_1d(data, level, axes, wavelet=wavelet)
+        data_rec = _modwt.imodwt_1d(approx, details, level, axes, wavelet=wavelet)
         assert np.allclose(data_rec, data)
 
 
@@ -50,8 +50,8 @@ def test_round_trip(data, wavelet):
     axes = range(len(data.shape))
 
     for level in range(max_level):
-        coeffs = modwt.modwt_nd(data, level, axes, wavelet=wavelet)
-        data_rec = modwt.imodwt_nd(coeffs, level, axes, wavelet=wavelet)
+        coeffs = _modwt.modwt_nd(data, level, axes, wavelet=wavelet)
+        data_rec = _modwt.imodwt_nd(coeffs, level, axes, wavelet=wavelet)
         assert np.allclose(data_rec, data)
 
 
@@ -70,7 +70,7 @@ def test_round_trip(data, wavelet):
 )
 def test_reverse_1d(data, wavelet):
     level = 0
-    approx, details = modwt.modwt_1d(data, level, wavelet=wavelet)
+    approx, details = _modwt.modwt_1d(data, level, wavelet=wavelet)
     x, y = undo_1d_modwt(approx, details, wavelet=wavelet)
     assert np.allclose(x, data)
     assert np.allclose(y, np.roll(data, -(2**level)))
