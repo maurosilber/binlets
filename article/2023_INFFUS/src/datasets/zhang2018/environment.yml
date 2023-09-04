@@ -1,0 +1,14 @@
+name: zhang2018
+channels:
+  - conda-forge
+  - pytorch
+dependencies:
+  - python
+  - ipykernel
+  - numpy
+  - matplotlib
+  - scikit-image
+  - pytorch::pytorch
+  - torchvision
+  - torchaudio
+  - pandas
