@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - numpy
+  - scipy
   - pytest
   - hypothesis
   - pre-commit
