@@ -1,5 +1,13 @@
 # Binlets: denoising via adaptive binning
 
+![Package](https://img.shields.io/pypi/v/binlets?label=binlets)
+![PyVersion](https://img.shields.io/pypi/pyversions/binlets?label=python)
+![License](https://img.shields.io/pypi/l/binlets?label=license)
+![CodeStyle](https://img.shields.io/badge/code%20style-black-000000.svg)
+[![CI](https://github.com/maurosilber/binlets/actions/workflows/test.yml/badge.svg)](https://github.com/maurosilber/binlets/actions/workflows/ci.yml)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/maurosilber/binlets/master.svg)](https://results.pre-commit.ci/latest/github/maurosilber/binlets/master)
+[![Paper](https://img.shields.io/badge/DOI-10.1016/j.inffus.2023.101999-darkgreen)](https://doi.org/10.1016/j.inffus.2023.101999)
+
 ## Usage
 
 `binlets` requires an array of data,

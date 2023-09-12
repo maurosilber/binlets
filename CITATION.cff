@@ -1,0 +1,42 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Binlets: Data fusion-aware denoising enables accurate and unbiased quantification of multichannel signals
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Mauro
+    family-names: Silberberg
+    email: maurosilber@df.uba.ar
+    orcid: 'https://orcid.org/0000-0002-2402-1100'
+    affiliation: >-
+      1. Universidad de Buenos Aires, Facultad de Ciencias Exactas y Naturales, Departamento de Física. Buenos Aires, Argentina.
+      2. CONICET - Universidad de Buenos Aires, Instituto de Física de Buenos Aires (IFIBA). Buenos Aires, Argentina
+  - given-names: Hernán Edgardo
+    family-names: Grecco
+    email: hgrecco@df.uba.ar
+    affiliation: >-
+      1. Universidad de Buenos Aires, Facultad de Ciencias Exactas y Naturales, Departamento de Física. Buenos Aires, Argentina.
+      2. CONICET - Universidad de Buenos Aires, Instituto de Física de Buenos Aires (IFIBA). Buenos Aires, Argentina
+    orcid: 'https://orcid.org/0000-0002-1165-4320'
+identifiers:
+  - type: doi
+    value: 10.1016/j.inffus.2023.101999
+abstract: >-
+  As monitoring multiple signals becomes more cost-effective,
+  combining them through a data fusion-aware denoising method can produce a more robust estimation of the underlying process.
+  Here, we present a method based on the Haar wavelet transform
+  that trades off resolution against accuracy based on statistical significance.
+  By taking advantage of correlations between channels,
+  it offers a superior performance compared to denoising each channel separately.
+  It outperforms standard wavelet methods when the magnitude of interest in the data-fusion process involves a non-linear transformation or reduction of a multichannel signal.
+  We demonstrate its efficacy by benchmarking our method against standard wavelet thresholding for synthetic single and multichannel time series, and a multichannel two-dimensional image.
+  The method has a simple interpretation as an adaptive binning of the signal,
+  and neither requires training data nor specialized hardware to run fast.
+  In addition, a reference Python implementation is available on GitHub and PyPI,
+  making it simple to integrate into any analysis pipeline.
+license: MIT
