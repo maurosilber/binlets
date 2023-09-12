@@ -16,3 +16,6 @@ dependencies:
   - seaborn
   - torchaudio
   - torchvision
+  - pip
+  - pip:
+    - binlets == 1.0.0
