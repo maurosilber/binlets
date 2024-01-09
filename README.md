@@ -84,6 +84,12 @@ Binlets can be installed from PyPI:
 pip install binlets
 ```
 
+or conda-forge:
+
+```
+conda installl -c conda-forge binlets
+```
+
 ## Development
 
 To set up a development environment in a new conda environment, run the following commands:
