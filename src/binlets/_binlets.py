@@ -114,8 +114,10 @@ def _binlets_thresholding_nonlinear(
 
 
 def _check_test(
-    test: Callable[[np.ndarray, np.ndarray], np.ndarray[bool]]
-    | Callable[[np.ndarray, np.ndarray, int], np.ndarray[bool]],
+    test: (
+        Callable[[np.ndarray, np.ndarray], np.ndarray[bool]]
+        | Callable[[np.ndarray, np.ndarray, int], np.ndarray[bool]]
+    ),
 ) -> Callable[[np.ndarray, np.ndarray, int], np.ndarray[bool]]:
     """Check that the test callable has a level parameter.
 
