@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-try:
-    from typing import Protocol
-except ImportError:
-    from typing_extensions import Protocol
+from typing import Protocol
 
 import numpy as np
 
@@ -31,20 +28,20 @@ class Haar:
     Decomposition can be thought of as a binning operation.
     """
 
-    dec_lo = [1.0, 1.0]
-    dec_hi = [-1.0, 1.0]
-    rec_lo = [0.5, 0.5]
-    rec_hi = [0.5, -0.5]
+    dec_lo = (1.0, 1.0)
+    dec_hi = (-1.0, 1.0)
+    rec_lo = (0.5, 0.5)
+    rec_hi = (0.5, -0.5)
 
 
 class NormalizedHaar:
     """Normalized Haar wavelet."""
 
     s = 1 / 2**0.5
-    dec_lo = [s, s]
-    dec_hi = [-s, s]
-    rec_lo = [s, s]
-    rec_hi = [s, -s]
+    dec_lo = (s, s)
+    dec_hi = (-s, s)
+    rec_lo = (s, s)
+    rec_hi = (s, -s)
 
 
 def modwt_1d(

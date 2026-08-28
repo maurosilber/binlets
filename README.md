@@ -1,11 +1,10 @@
 # Binlets: denoising via adaptive binning
 
+[![Powered by Pixi](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/prefix-dev/pixi/main/assets/badge/v0.json)](https://pixi.prefix.dev)
 ![Package](https://img.shields.io/pypi/v/binlets?label=binlets)
 ![PyVersion](https://img.shields.io/pypi/pyversions/binlets?label=python)
 ![License](https://img.shields.io/pypi/l/binlets?label=license)
-![CodeStyle](https://img.shields.io/badge/code%20style-black-000000.svg)
-[![CI](https://github.com/maurosilber/binlets/actions/workflows/test.yml/badge.svg)](https://github.com/maurosilber/binlets/actions/workflows/ci.yml)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/maurosilber/binlets/master.svg)](https://results.pre-commit.ci/latest/github/maurosilber/binlets/master)
+[![CI](https://github.com/maurosilber/binlets/actions/workflows/ci.yml/badge.svg)](https://github.com/maurosilber/binlets/actions/workflows/ci.yml)
 [![Paper](https://img.shields.io/badge/DOI-10.1016/j.inffus.2023.101999-darkgreen)](https://doi.org/10.1016/j.inffus.2023.101999)
 
 ## Usage
@@ -87,17 +86,11 @@ pip install binlets
 or conda-forge:
 
 ```
-conda installl -c conda-forge binlets
+conda install -c conda-forge binlets
 ```
 
 ## Development
 
-To set up a development environment in a new conda environment, run the following commands:
-
-```
-git clone https://github.com/maurosilber/binlets
-cd binlets
-conda env create -f environment.yml
-conda activate binlets
-pre-commit install
-```
+We use [pixi](https://pixi.prefix.dev) for development.
+Just clone the repository and run `pixi run test`.
+Optionally, install pre-commit hooks with `pixi run prek install`.

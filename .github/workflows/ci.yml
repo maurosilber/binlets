@@ -1,0 +1,44 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment:
+          - py310
+          - py311
+          - py312
+          - py313
+          - py314
+    steps:
+      - uses: actions/checkout@main
+      - uses: prefix-dev/setup-pixi@main
+        with:
+          environments: ${{ matrix.environment }}
+      - run: pixi run --environment ${{ matrix.environment }} test
+
+  lint-test-build-publish:
+    needs: test
+
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pyfragments
+    permissions:
+      id-token: write  # for trusted publising to PyPI
+
+    steps:
+      - uses: actions/checkout@main
+      - uses: prefix-dev/setup-pixi@main
+      - name: Lint
+        run: pixi run lint
+      - name: Test
+        run: pixi run test
+      - name: Build
+        run: pixi run build
+      - name: Publish to PyPI
+        if: github.ref_type == 'tag'
+        run: pixi run _publish

@@ -1,0 +1,53 @@
+default_install_hook_types = ["pre-commit", "pre-push"]
+
+[[repos]]
+repo = "builtin"
+hooks = [
+  { id = "check-added-large-files", args = ["--maxkb=1024"] },
+  { id = "check-case-conflict" },
+  { id = "check-illegal-windows-names" },
+  { id = "check-json", exclude.glob = ".vscode/*.json" },
+  { id = "check-json5" },
+  { id = "check-merge-conflict", args = ["--assume-in-merge"] },
+  { id = "check-symlinks" },
+  { id = "check-toml" },
+  { id = "check-vcs-permalinks" },
+  { id = "check-yaml" },
+  { id = "destroyed-symlinks" },
+  { id = "detect-private-key" },
+  { id = "end-of-file-fixer", exclude_types = ["rust"] },
+  { id = "file-contents-sorter" },
+  { id = "fix-byte-order-marker" },
+  { id = "mixed-line-ending", args = ["--fix=lf"] },
+]
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "python-format"
+name = "Format Python files with Ruff"
+language = "system"
+entry = "pixi run ruff format"
+types = ["python"]
+
+[[repos.hooks]]
+id = "python-lint"
+name = "Lint Python files with Ruff"
+language = "system"
+entry = "pixi run ruff check"
+types = ["python"]
+
+[[repos.hooks]]
+id = "toml-format"
+name = "Format TOML files with Tombi"
+language = "system"
+entry = "pixi run tombi format"
+types = ["toml"]
+
+[[repos.hooks]]
+id = "toml-lint"
+name = "Lint TOML files with Tombi"
+language = "system"
+entry = "pixi run tombi check"
+types = ["toml"]

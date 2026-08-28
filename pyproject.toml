@@ -1,52 +1,77 @@
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "binlets"
-authors = [
-    { name="Mauro Silberberg", email="maurosilber@gmail.com" },
-]
+version = "1.0.0"
 description = "Denoising via adaptive binning."
-requires-python = ">=3.7"
-keywords = [
-    "denoising",
-    "adaptive",
-    "wavelets",
-]
-license = { file="LICENSE" }
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "Mauro Silberberg", email = "maurosilber@gmail.com" }]
+keywords = ["adaptive", "denoising", "wavelets"]
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Software Development :: Libraries",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries",
 ]
-dynamic = ["dependencies", "optional-dependencies", "version"]
-
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.setuptools.dynamic]
-dependencies = {file = "requirements.txt"}
-optional-dependencies.test = {file = "requirements.test.txt"}
+dependencies = [
+  "numpy",
+]
 
 [project.urls]
-"Homepage" = "https://github.com/maurosilber/binlets"
 "Bug Tracker" = "https://github.com/maurosilber/binlets/issues"
+"Homepage" = "https://github.com/maurosilber/binlets"
 
-[tool.setuptools_scm]
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "win-64"]
+preview = ["pixi-build"]
+
+[tool.pixi.package.build]
+backend = { name = "pixi-build-python", version = "*" }
+config = { ignore-pypi-mapping = false }  # Enable automatic PyPI-to-conda mapping
+
+[tool.pixi.environments]
+default = ["test", "py39", "lint", "build"]
+py310 = ["test", "py310"]
+py311 = ["test", "py311"]
+py312 = ["test", "py312"]
+py313 = ["test", "py313"]
+py314 = ["test", "py314"]
+
+[tool.pixi.dependencies]
+binlets = { path = "." }
+
+[tool.pixi.feature]
+py39.dependencies.python = "3.9.*"
+py310.dependencies.python = "3.10.*"
+py311.dependencies.python = "3.11.*"
+py312.dependencies.python = "3.12.*"
+py313.dependencies.python = "3.13.*"
+py314.dependencies.python = "3.14.*"
+
+[tool.pixi.feature.build]
+dependencies = { uv = "*" }
+tasks = { build = "uv build", _publish = "uv publish" }
+
+[tool.pixi.feature.lint]
+dependencies = { prek = "*", tombi = "*", ruff = "*" }
+tasks = { lint = "prek --all-files" }
+
+[tool.pixi.feature.test]
+dependencies = { pytest = "*", hypothesis = "*", scipy = "*" }
+tasks = { test = "pytest --doctest-modules" }
 
 [tool.pytest.ini_options]
 addopts = "--import-mode=importlib"
 pythonpath = "."
 
 [tool.ruff]
-select = ["E", "F", "I"]
-ignore = ["E501"]
+format = { docstring-code-format = true }
+lint = { extend-select = ["I"] }
+
+[tool.tombi]
+toml-version = "v1.1.0"
